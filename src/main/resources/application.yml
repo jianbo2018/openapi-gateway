@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: openapi-gateway
+server:
+  port: 10000
