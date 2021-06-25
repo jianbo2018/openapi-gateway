@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+'autonumber
+
+participant client
+participant "openapi-gateway" as server
+participant "backend-service" as backend
+
+client->server: http request
+
+activate server
+    server->server++:
+'       进入FilterChian
+        server->server: HttpRequest进入FilterChain\nFilterChain本质上就是一组netty的ChannelHandler
+
+'       PreFilter
+        server->server: pre filter
+            alt 请求聚合
+                server->server: 解析出真正的uri list，并加入RequestContext
+            end
+
+'       RouteFilter
+        server->server: route filter
+            activate server
+                server->backend++: 查找服务列表，发起RPC
+                    backend->backend:处理rpc请求
+                backend->server
+            deactivate
+
+'       PostFilter
+        server->server: post filter
+            activate server
+                server->server: response修改、参数添加等
+                alt 请求聚合
+                    server->server: 如果是请求聚合，则在此处按照请求设置来聚合reponse
+                end
+            deactivate server
+'       ErrorFilter
+        server->server: error filter
+            activate server
+                server->server: 其他Filter如果出现异常，可以通过在RequestContext中设置错误参数\nErrorFilter将检查这些参数，如果存在对response做修改
+            deactivate
+deactivate server
+server->client: http response
+
+@enduml

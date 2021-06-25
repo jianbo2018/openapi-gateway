@@ -1,7 +1,6 @@
-package com.fpay.openapi.gateway.web.netty;
+package com.fpay.openapi.gateway.netty;
 
-import com.fpay.openapi.gateway.web.netty.handler.PreFilterHandler;
-import com.fpay.openapi.gateway.web.netty.handler.SimpleHandler;
+import com.fpay.openapi.gateway.netty.handler.GatewayFilterHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -18,16 +17,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class OpenApiChannelInitializer extends ChannelInitializer<NioSocketChannel> {
     @Autowired
-    private PreFilterHandler preFilterHandler;
+    private GatewayFilterHandler gatewayFilterHandler;
 
     @Override
     protected void initChannel(NioSocketChannel ch) throws Exception {
         ch.pipeline()
                 .addLast("httpServerCode-handler", new HttpServerCodec())
                 .addLast("httpObjectAggregator-handler", new HttpObjectAggregator(8192))
-                .addLast("preFilter-handler", preFilterHandler);
-//                .addLast("simple-handler", new SimpleHandler());
-        //todo add concrete business service handler
+                .addLast("preFilter-handler", gatewayFilterHandler);
     }
 
 }

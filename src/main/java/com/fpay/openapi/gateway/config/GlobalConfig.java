@@ -1,7 +1,5 @@
 package com.fpay.openapi.gateway.config;
 
-import com.fpay.openapi.gateway.filter.GatewayFilterBeanPostProcessor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**

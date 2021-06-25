@@ -1,6 +1,6 @@
 package com.fpay.openapi.gateway;
 
-import com.fpay.openapi.gateway.web.context.FpayGatewayApplicationContext;
+import com.fpay.openapi.gateway.context.FpayGatewayApplicationContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

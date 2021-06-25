@@ -1,7 +1,7 @@
-package com.fpay.openapi.gateway.web.context;
+package com.fpay.openapi.gateway.context;
 
-import com.fpay.openapi.gateway.filter.GatewayFilterRegistry;
-import com.fpay.openapi.gateway.web.netty.OpenApiChannelInitializer;
+import com.fpay.openapi.gateway.filter.pre.FilterRegistry;
+import com.fpay.openapi.gateway.netty.OpenApiChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.reactive.context.AnnotationConfigReactiveWebApplicationContext;
 import org.springframework.util.StringUtils;
 
@@ -25,19 +26,14 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class FpayGatewayApplicationContext extends AnnotationConfigReactiveWebApplicationContext {
 
-    //todo
-    private GatewayFilterRegistry filterRegistry;
+    @Autowired
+    private FilterRegistry filterRegistry;
 
     private ServerBootstrap serverBootstrap;
     private int serverPort;
     private EventLoopGroup boss;
     private EventLoopGroup worker;
     private ChannelFuture channelFuture;
-
-    public FpayGatewayApplicationContext() {
-        this.filterRegistry = new GatewayFilterRegistry();
-    }
-
     @Override
     protected void onRefresh() throws BeansException {
         serverPort = getServerPort();
@@ -76,7 +72,7 @@ public class FpayGatewayApplicationContext extends AnnotationConfigReactiveWebAp
         }
     }
 
-    public GatewayFilterRegistry getFilterRegistry() {
+    public FilterRegistry getPreFilterRegistry() {
         return filterRegistry;
     }
 }
