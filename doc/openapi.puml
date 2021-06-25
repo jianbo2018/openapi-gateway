@@ -6,41 +6,38 @@ participant client
 participant "openapi-gateway" as server
 participant "backend-service" as backend
 
-client->server: http request
+client->server++: http request
 
-activate server
-    server->server++:
-'       进入FilterChian
-        server->server: HttpRequest进入FilterChain\nFilterChain本质上就是一组netty的ChannelHandler
+'进入FilterChain
+server->server++: HttpRequest进入GatewayFilterHandler本质上是一个\nnetty handler，handler持有的filter chain负责处理流经\n的request
+return
 
-'       PreFilter
-        server->server: pre filter
-            alt 请求聚合
-                server->server: 解析出真正的uri list，并加入RequestContext
-            end
+'聚合请求前置处理
+server->server++: AggregateFilter：如果聚合请求，则该filter负责解析具体的path
+return
 
-'       RouteFilter
-        server->server: route filter
-            activate server
-                server->backend++: 查找服务列表，发起RPC
-                    backend->backend:处理rpc请求
-                backend->server
-            deactivate
+'请求path定位
+server->server++: ServiceDiscoveryFilter：请求path定位，找到具体的rpc service
+return
 
-'       PostFilter
-        server->server: post filter
-            activate server
-                server->server: response修改、参数添加等
-                alt 请求聚合
-                    server->server: 如果是请求聚合，则在此处按照请求设置来聚合reponse
-                end
-            deactivate server
-'       ErrorFilter
-        server->server: error filter
-            activate server
-                server->server: 其他Filter如果出现异常，可以通过在RequestContext中设置错误参数\nErrorFilter将检查这些参数，如果存在对response做修改
-            deactivate
-deactivate server
-server->client: http response
+'参数校验
+server->server++: rest服务基本参数校验，如长度、非法字符等
+return
+
+'权限校验
+server->server++: 如果该请求服务需要鉴权/认证，则在此处首先执行请求鉴权/认证
+return
+
+'发起请求
+server->server++: "openapi-gateway"调用后端服务，如果是聚合服务也在同一\n个线程中调用
+server->backend++: 发起rpc请求，如果是聚合请求，则CompletableFuture等待
+return rpc response object
+return
+
+'生成HttpResponse
+server->server++: 如果以上filter有任何一个地方出现异常，则会从threadLocal处获取\n错误信息并在此处封装错误信息。\n如果没有，则将后端服务返回的对象封装为http response
+return
+
+server->client: ctx.writeAndFlush(response)写回client
 
 @enduml
