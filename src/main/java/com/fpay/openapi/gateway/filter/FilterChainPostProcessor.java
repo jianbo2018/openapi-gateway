@@ -1,8 +1,6 @@
 package com.fpay.openapi.gateway.filter;
 
 import com.fpay.openapi.gateway.context.FpayGatewayApplicationContext;
-import com.fpay.openapi.gateway.filter.pre.GatewayFilter;
-import com.fpay.openapi.gateway.filter.pre.FilterRegistry;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -16,14 +14,19 @@ import org.springframework.stereotype.Component;
  * @Description <br/>
  */
 @Component
-public class PreFilterChainPostProcessor implements BeanPostProcessor, ApplicationContextAware {
+public class FilterChainPostProcessor implements BeanPostProcessor, ApplicationContextAware {
     private FpayGatewayApplicationContext applicationContext;
 
     @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
+
+    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        //如果是一个PreFilter，则注册到PreFilterRegistry
-        if (bean instanceof GatewayFilter) {
-            applicationContext.getBean(FilterRegistry.class).registerPreFilter((GatewayFilter) bean);
+        //AbstractGatewayFilter，则注册到FilterRegistry
+        if (bean instanceof AbstractGatewayFilter) {
+            applicationContext.getBean(FilterRegistry.class).registerPreFilter((AbstractGatewayFilter) bean);
         }
         return bean;
     }

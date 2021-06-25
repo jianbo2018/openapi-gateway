@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class ErrorMessage {
-    private LocalDateTime timestamp;
+    private String timestamp;
     //http response code: 404,500等
     private int status;
     //如：Internal Server Error

@@ -2,8 +2,8 @@ package com.fpay.openapi.gateway.netty.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fpay.openapi.gateway.filter.FilterRegistry;
 import com.fpay.openapi.gateway.filter.enumm.FilterStatus;
-import com.fpay.openapi.gateway.filter.pre.FilterRegistry;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 
@@ -35,8 +36,6 @@ public class GatewayFilterHandler extends AbstractBusinessHandler {
         FullHttpRequest request = (FullHttpRequest) msg;
         request.retain();
         executor.execute(() -> {
-            System.out.println(request.uri());
-            System.out.printf("[%s]--[%s]%n", "PreFilterHandler.businessExecutor.execute(....)", Thread.currentThread().getName());
             RequestFilterContext context = RequestFilterContext.getCurrentContext();
             context.setHttpRequest(request);
             filterRegistry.doFilter();
@@ -53,12 +52,18 @@ public class GatewayFilterHandler extends AbstractBusinessHandler {
                 case ERROR:
                     String errorJson = "";
                     try {
-                        errorJson = new ObjectMapper().writeValueAsString(new ErrorMessage());
+                        ErrorMessage errorMessage = new ErrorMessage();
+                        errorMessage.setError(context.getError().getMessage());
+                        errorMessage.setPath(request.uri());
+                        errorMessage.setTimestamp(LocalDateTime.now().toString());
+                        errorMessage.setStatus(404);
+                        errorJson = new ObjectMapper().writeValueAsString(errorMessage);
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
                     //todo: 临时草稿
-                    HttpResponseStatus httpResponseStatus = (HttpResponseStatus) context.get("httpResponseStatus");
+                    HttpResponseStatus httpResponseStatus = context.get("httpResponseStatus") == null ?
+                            HttpResponseStatus.NOT_FOUND : (HttpResponseStatus) context.get("httpResponseStatus");
                     response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus,
                             Unpooled.wrappedBuffer(errorJson.getBytes(StandardCharsets.UTF_8)));
                     break;

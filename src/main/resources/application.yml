@@ -3,3 +3,9 @@ spring:
     name: openapi-gateway
 server:
   port: 10000
+dubbo:
+  application:
+    name: openapi-gateway
+#  registry:
+#    address: localhost:2181,localhost:2182,localhost:2183
+#    protocol: zookeeper

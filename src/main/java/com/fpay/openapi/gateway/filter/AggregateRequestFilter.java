@@ -1,4 +1,4 @@
-package com.fpay.openapi.gateway.filter.pre;
+package com.fpay.openapi.gateway.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,16 +18,15 @@ import java.util.regex.Pattern;
  * 负责处理聚合请求
  */
 @Service
-public class AggregateRequestFilter extends GatewayFilter {
+public class AggregateRequestFilter extends AbstractGatewayFilter {
 
     @Override
     public int getOrder() {
-        return -100;
+        return -1000;
     }
 
     @Override
     public void process() {
-        System.out.printf("[%s]--[%s]%n", "AggregateRequestFilter.process()", Thread.currentThread().getName());
         RequestFilterContext context = RequestFilterContext.getCurrentContext();
         FullHttpRequest request = (FullHttpRequest) context.getHttpRequest();
         String uriString = request.uri();

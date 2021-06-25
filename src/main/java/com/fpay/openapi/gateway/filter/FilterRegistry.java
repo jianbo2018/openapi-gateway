@@ -1,4 +1,4 @@
-package com.fpay.openapi.gateway.filter.pre;
+package com.fpay.openapi.gateway.filter;
 
 import com.fpay.openapi.gateway.filter.enumm.FilterStatus;
 import com.fpay.openapi.gateway.netty.handler.RequestFilterContext;
@@ -14,23 +14,23 @@ import java.util.TreeSet;
  */
 @Component
 public class FilterRegistry {
-    private final TreeSet<GatewayFilter> filterChain;
+    private final TreeSet<AbstractGatewayFilter> filterChain;
 
     public FilterRegistry() {
         this.filterChain = new TreeSet<>();
     }
 
-    public void registerPreFilter(GatewayFilter filter) {
+    public void registerPreFilter(AbstractGatewayFilter filter) {
         filterChain.add(filter);
     }
 
-    public TreeSet<GatewayFilter> getFilterChain() {
+    public TreeSet<AbstractGatewayFilter> getFilterChain() {
         return filterChain;
     }
 
     public void doFilter() {
         RequestFilterContext.getCurrentContext().setStatus(FilterStatus.SUCCESS);
-        for (GatewayFilter gatewayFilter : filterChain) {
+        for (AbstractGatewayFilter gatewayFilter : filterChain) {
             gatewayFilter.doFilter();
         }
     }

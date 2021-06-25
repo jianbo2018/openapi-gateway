@@ -1,4 +1,4 @@
-package com.fpay.openapi.gateway.filter.pre;
+package com.fpay.openapi.gateway.filter;
 
 import com.fpay.openapi.gateway.filter.enumm.FilterStatus;
 import com.fpay.openapi.gateway.netty.handler.RequestFilterContext;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * @Description <br/>
  */
 @Service
-public class DemoPostResponseFilter extends GatewayFilter {
+public class DemoPostResponseFilter extends AbstractGatewayFilter {
     @Override
     public int getOrder() {
         return Integer.MAX_VALUE;
@@ -19,7 +19,6 @@ public class DemoPostResponseFilter extends GatewayFilter {
 
     @Override
     public void process() {
-        System.out.printf("[%s]--[%s]%n", "AggregateRequestFilter.process()", Thread.currentThread().getName());
         RequestFilterContext context = RequestFilterContext.getCurrentContext();
         context.setStatus(FilterStatus.SUCCESS);
         context.put("httpResponse", "{\"orderId\":12345,\"price\":12.50}");

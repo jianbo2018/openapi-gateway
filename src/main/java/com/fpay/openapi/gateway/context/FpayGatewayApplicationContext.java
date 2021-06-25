@@ -1,6 +1,6 @@
 package com.fpay.openapi.gateway.context;
 
-import com.fpay.openapi.gateway.filter.pre.FilterRegistry;
+import com.fpay.openapi.gateway.filter.FilterRegistry;
 import com.fpay.openapi.gateway.netty.OpenApiChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

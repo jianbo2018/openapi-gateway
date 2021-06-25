@@ -1,4 +1,4 @@
-package com.fpay.openapi.gateway.filter.pre;
+package com.fpay.openapi.gateway.filter;
 
 import com.fpay.openapi.gateway.filter.enumm.FilterStatus;
 import com.fpay.openapi.gateway.netty.handler.RequestFilterContext;
@@ -9,8 +9,7 @@ import com.fpay.openapi.gateway.netty.handler.RequestFilterContext;
  * @Version 1.0
  * @Description <br/>
  */
-public abstract class GatewayFilter implements Comparable<GatewayFilter> {
-    private GatewayFilter next;
+public abstract class AbstractGatewayFilter implements Comparable<AbstractGatewayFilter> {
 
     public abstract int getOrder();
 
@@ -23,14 +22,16 @@ public abstract class GatewayFilter implements Comparable<GatewayFilter> {
             return;
         }
         context.setStatus(FilterStatus.SUCCESS);
-        process();
-        if (next != null) {
-            next.doFilter();
+        try {
+            process();
+        } catch (Throwable throwable) {
+            context.setStatus(FilterStatus.ERROR);
+            context.setError(throwable);
         }
     }
 
     @Override
-    public int compareTo(GatewayFilter o) {
+    public int compareTo(AbstractGatewayFilter o) {
         return this.getOrder() - o.getOrder();
     }
 }
